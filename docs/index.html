@@ -184,6 +184,9 @@
   .code-body .str { color: #fbbf24; }
   .code-body .cmt { color: var(--faint); }
   .code-body .ok { color: var(--emerald); }
+  .copy-btn { display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--faint); background: rgba(148, 163, 184, 0.08); border: 1px solid var(--border); border-radius: 7px; padding: 3px 8px; cursor: pointer; vertical-align: middle; transition: color .15s ease, border-color .15s ease; }
+  .copy-btn:hover { color: var(--ink); border-color: #334155; }
+  .copy-btn.copied { color: var(--emerald); border-color: rgba(16, 185, 129, 0.45); }
 
   /* ---------- Section scaffolding ---------- */
   section { position: relative; padding: 84px 0; }
@@ -449,7 +452,7 @@
       <a class="btn btn-ghost" href="https://github.com/FahreddinHepdonduran/loopsmith">View on GitHub</a>
     </div>
 
-    <div class="hero-npx"><span class="dollar">$</span> <span class="cmd">npx loopsmith</span> <span class="hint">installs in seconds</span></div>
+    <div class="hero-npx"><span class="dollar">$</span> <span class="cmd">npx loopsmith</span><button class="copy-btn" data-copy="npx loopsmith" aria-label="Copy command"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="copy-label">copy</span></button></div>
 
     <div class="code-block">
       <div class="code-bar">
@@ -457,7 +460,7 @@
         <span class="tl-label">claude-code</span>
       </div>
       <div class="code-body">
-<span class="prompt">&gt;</span> <span class="cmd">/verify-loop</span> <span class="str">"add pagination to the users endpoint and make the tests pass"</span>
+<span class="prompt">&gt;</span> <span class="cmd">/verify-loop</span> <span class="str">"add pagination to the users endpoint and make the tests pass"</span><button class="copy-btn" data-copy='/verify-loop "add pagination to the users endpoint and make the tests pass"' aria-label="Copy command"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="copy-label">copy</span></button>
 <span class="cmt"># maker writes the change</span>
 <span class="cmt"># checker runs tests, lint, build on a clean context</span>
 <span class="cmt"># failures feed back, it retries</span>
@@ -675,10 +678,10 @@
         <span class="tl-label">terminal</span>
       </div>
       <div class="code-body"><span class="cmt"># install globally, into ~/.claude/skills</span>
-<span class="prompt">$</span> <span class="cmd">npx loopsmith</span>
+<span class="prompt">$</span> <span class="cmd">npx loopsmith</span><button class="copy-btn" data-copy="npx loopsmith" aria-label="Copy command"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="copy-label">copy</span></button>
 
 <span class="cmt"># or into the current project, into ./.claude/skills</span>
-<span class="prompt">$</span> <span class="cmd">npx loopsmith</span> <span class="str">--project</span>
+<span class="prompt">$</span> <span class="cmd">npx loopsmith</span> <span class="str">--project</span><button class="copy-btn" data-copy="npx loopsmith --project" aria-label="Copy command"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="copy-label">copy</span></button>
 
 <span class="ok">&#10003;</span> <span class="cmt">verify-loop, grade, loop-cost installed</span></div>
     </div>
@@ -714,5 +717,31 @@
   </div>
 </footer>
 
+<script>
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.copy-btn');
+    if (!btn) return;
+    var text = btn.getAttribute('data-copy');
+    var done = function () {
+      var label = btn.querySelector('.copy-label');
+      var prev = label ? label.textContent : '';
+      btn.classList.add('copied');
+      if (label) label.textContent = 'copied';
+      setTimeout(function () {
+        btn.classList.remove('copied');
+        if (label) label.textContent = prev;
+      }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(done);
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (err) {}
+      document.body.removeChild(ta); done();
+    }
+  });
+</script>
 </body>
 </html>
