@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="loopsmith" width="320">
+  <img src="https://raw.githubusercontent.com/FahreddinHepdonduran/loopsmith/main/assets/logo.svg" alt="loopsmith" width="320">
 </p>
 
 <p align="center"><strong>Loop engineering for coding agents.</strong></p>
@@ -17,6 +17,16 @@ Prompting a coding agent turn by turn and hoping the result works is a slow way 
 It is a [Claude Code](https://www.anthropic.com/claude-code) plugin made of three skills.
 
 The idea worth remembering: an agent that thinks it is done is not the same as a change that has been independently verified. loopsmith keeps a hard wall between the agent that makes the change (the maker) and the agent that grades it (the checker). The checker never sees the maker's reasoning, only the original intent, the resulting diff, and the command output. That independence removes the self-grading bias where an agent approves its own work.
+
+## Install
+
+One line installs all three skills into your global Claude Code skills directory:
+
+```
+npx loopsmith
+```
+
+This copies the skills into `~/.claude/skills/`. Start a new Claude Code session and they are ready. To install into the current project instead, use `npx loopsmith --project`, which writes to `./.claude/skills/`.
 
 ## The three skills
 
@@ -71,11 +81,11 @@ And estimate the budget before a big loop:
 
 ## Status
 
-v0.1.0, early. Scope is **code tasks** and **session-scoped** (one task, one loop). The plugin structure exists (`.claude-plugin/plugin.json` and `skills/`). An npx installer is planned and not wired up yet.
+v0.1.0, early. Scope is **code tasks** and **session-scoped** (one task, one loop). Install it with `npx loopsmith` as shown above.
 
 Planned:
 
-- npx installer for one-line setup
+- native Claude Code plugin marketplace install (`/plugin install`)
 - domain-agnostic grading (text, plans, analysis)
 - a checker panel with majority vote for higher assurance
 - scheduled and unattended loops

@@ -1,0 +1,38 @@
+{
+  "name": "loopsmith",
+  "version": "0.1.0",
+  "description": "Loop engineering for coding agents. Installs a maker/checker verification loop, an independent grader, and a budget estimator as Claude Code skills.",
+  "bin": {
+    "loopsmith": "bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "skills",
+    "assets"
+  ],
+  "scripts": {
+    "test": "node bin/cli.js --help"
+  },
+  "keywords": [
+    "loop-engineering",
+    "verification-loop",
+    "coding-agent",
+    "maker-checker",
+    "claude-code",
+    "claude-code-skill",
+    "ai-agents"
+  ],
+  "homepage": "https://fahreddinhepdonduran.github.io/loopsmith/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FahreddinHepdonduran/loopsmith.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FahreddinHepdonduran/loopsmith/issues"
+  },
+  "author": "Fahreddin Hepdonduran <fahreddinhepdonduran@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.7.0"
+  }
+}
