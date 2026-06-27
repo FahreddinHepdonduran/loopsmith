@@ -20,13 +20,22 @@ The idea worth remembering: an agent that thinks it is done is not the same as a
 
 ## Install
 
-One line installs all three skills into your global Claude Code skills directory:
+**Option A, npx (quickest).** One line installs all three skills into your global Claude Code skills directory:
 
 ```
 npx loopsmith
 ```
 
 This copies the skills into `~/.claude/skills/`. Start a new Claude Code session and they are ready. To install into the current project instead, use `npx loopsmith --project`, which writes to `./.claude/skills/`.
+
+**Option B, Claude Code plugin.** Install it as a managed plugin so Claude Code tracks updates:
+
+```
+/plugin marketplace add FahreddinHepdonduran/loopsmith
+/plugin install loopsmith
+```
+
+The skills are then available as `/loopsmith:verify-loop`, `/loopsmith:grade`, and `/loopsmith:loop-cost`.
 
 ## The three skills
 
@@ -85,7 +94,7 @@ v0.1.0, early. Scope is **code tasks** and **session-scoped** (one task, one loo
 
 Planned:
 
-- native Claude Code plugin marketplace install (`/plugin install`)
+- listing in the Claude community plugin directory
 - domain-agnostic grading (text, plans, analysis)
 - a checker panel with majority vote for higher assurance
 - scheduled and unattended loops

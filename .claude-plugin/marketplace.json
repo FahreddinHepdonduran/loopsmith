@@ -1,0 +1,28 @@
+{
+  "name": "loopsmith",
+  "owner": {
+    "name": "Fahreddin Hepdonduran"
+  },
+  "description": "Loop engineering for coding agents: a maker/checker verification loop with an independent grader and a budget estimator.",
+  "plugins": [
+    {
+      "name": "loopsmith",
+      "source": "./",
+      "description": "Wrap any code task in a maker/checker verification loop. A maker writes the change, an independent checker runs tests/lint/build and reviews the diff against intent, and it retries until it passes or a stop condition fires. Ships three skills: verify-loop, grade, loop-cost.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Fahreddin Hepdonduran"
+      },
+      "homepage": "https://github.com/FahreddinHepdonduran/loopsmith",
+      "repository": "https://github.com/FahreddinHepdonduran/loopsmith",
+      "license": "MIT",
+      "keywords": [
+        "loop-engineering",
+        "verification-loop",
+        "maker-checker",
+        "coding-agent",
+        "claude-code"
+      ]
+    }
+  ]
+}
