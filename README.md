@@ -5,7 +5,7 @@
 <p align="center"><strong>Loop engineering for coding agents.</strong></p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0-blue" alt="version 0.1.0">
+  <a href="https://www.npmjs.com/package/loopsmith"><img src="https://img.shields.io/npm/v/loopsmith?color=2563eb" alt="npm version"></a>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license MIT">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-8A63D2" alt="Claude Code plugin">
 </p>

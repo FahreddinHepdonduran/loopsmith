@@ -148,6 +148,12 @@
   }
   .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .hero-cta .btn { padding: 13px 24px; font-size: 15px; }
+  .hero-npx { margin: 26px auto 0; display: inline-flex; align-items: center; gap: 9px; font-family: var(--mono); font-size: 14px; background: #0a101e; border: 1px solid var(--border); border-radius: 11px; padding: 10px 16px; }
+  .hero-npx .dollar { color: var(--cyan-soft); }
+  .hero-npx .cmd { color: var(--ink); }
+  .hero-npx .hint { color: var(--faint); font-size: 12px; margin-left: 2px; }
+  .install-note { text-align: center; color: var(--muted); font-size: 15px; max-width: 640px; margin: 34px auto 0; }
+  .install-note code { font-family: var(--mono); font-size: 13px; color: var(--cyan-soft); background: rgba(34, 211, 238, 0.08); padding: 2px 6px; border-radius: 6px; }
 
   .code-block {
     margin: 48px auto 0;
@@ -172,7 +178,7 @@
   .code-bar .tl.y { background: #eab308; }
   .code-bar .tl.g { background: #22c55e; }
   .code-bar .tl-label { margin-left: 8px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
-  .code-body { padding: 20px 22px; font-family: var(--mono); font-size: 14px; line-height: 1.85; overflow-x: auto; }
+  .code-body { padding: 20px 22px; font-family: var(--mono); font-size: 14px; line-height: 1.85; overflow-x: auto; white-space: pre-wrap; }
   .code-body .prompt { color: var(--cyan-soft); }
   .code-body .cmd { color: var(--ink); }
   .code-body .str { color: #fbbf24; }
@@ -392,6 +398,7 @@
       <span>loop<span class="dash">smith</span></span>
     </a>
     <div class="nav-links">
+      <a class="btn btn-ghost label-hide" href="#install">Install</a>
       <a class="btn btn-ghost label-hide" href="#how">How it works</a>
       <a class="btn btn-primary" href="https://github.com/FahreddinHepdonduran/loopsmith">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
@@ -438,9 +445,11 @@
     </p>
 
     <div class="hero-cta">
-      <a class="btn btn-primary" href="https://github.com/FahreddinHepdonduran/loopsmith">View on GitHub</a>
-      <a class="btn btn-ghost" href="#how">How it works</a>
+      <a class="btn btn-primary" href="#install">Install loopsmith</a>
+      <a class="btn btn-ghost" href="https://github.com/FahreddinHepdonduran/loopsmith">View on GitHub</a>
     </div>
+
+    <div class="hero-npx"><span class="dollar">$</span> <span class="cmd">npx loopsmith</span> <span class="hint">installs in seconds</span></div>
 
     <div class="code-block">
       <div class="code-bar">
@@ -649,6 +658,35 @@
   </div>
 </section>
 
+<hr class="divider">
+
+<!-- ============ INSTALL ============ -->
+<section id="install">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Install</span>
+      <h2>One line, into Claude Code.</h2>
+      <p class="lead">loopsmith installs as three Claude Code skills. No build step, no config. Run it, start a new session, and the skills are ready.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-bar">
+        <span class="tl r"></span><span class="tl y"></span><span class="tl g"></span>
+        <span class="tl-label">terminal</span>
+      </div>
+      <div class="code-body"><span class="cmt"># install globally, into ~/.claude/skills</span>
+<span class="prompt">$</span> <span class="cmd">npx loopsmith</span>
+
+<span class="cmt"># or into the current project, into ./.claude/skills</span>
+<span class="prompt">$</span> <span class="cmd">npx loopsmith</span> <span class="str">--project</span>
+
+<span class="ok">&#10003;</span> <span class="cmt">verify-loop, grade, loop-cost installed</span></div>
+    </div>
+
+    <p class="install-note">Prefer the native plugin flow? <code>/plugin install</code> support is coming next. For now, <code>npx loopsmith</code> is the one-step path.</p>
+  </div>
+</section>
+
 <!-- ============ FOOTER ============ -->
 <footer>
   <div class="wrap foot-inner">
@@ -666,7 +704,7 @@
     <div class="foot-tags">
       <span class="chip">v0.1.0</span>
       <span class="chip">MIT License</span>
-      <span class="chip soon">npx installer coming soon</span>
+      <span class="chip">npx loopsmith</span>
       <a class="btn btn-ghost" href="https://github.com/FahreddinHepdonduran/loopsmith">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         GitHub
