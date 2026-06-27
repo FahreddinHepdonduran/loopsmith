@@ -1,0 +1,41 @@
+name: Publish to npm
+
+# Publishes the package to npm when a GitHub Release is published,
+# or when triggered manually from the Actions tab.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm provenance
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      # On a release, make sure the tag matches the version in package.json
+      # so we never publish a mismatched version by accident.
+      # GITHUB_REF_NAME is a trusted runner env var (the tag), not interpolated input.
+      - name: Check version matches tag
+        if: github.event_name == 'release'
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          TAG=${GITHUB_REF_NAME#v}
+          echo "package.json: $PKG | tag: $TAG"
+          test "$PKG" = "$TAG" || { echo "version mismatch: package.json ($PKG) != tag ($TAG)"; exit 1; }
+
+      - name: Show what will be published
+        run: npm pack --dry-run
+
+      - name: Publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
