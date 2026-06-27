@@ -1,0 +1,24 @@
+<svg width="320" height="92" viewBox="0 0 320 92" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="loopsmith">
+  <defs>
+    <linearGradient id="lk-grad" x1="20" y1="22" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="lk-kit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#818cf8"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <marker id="lk-arrow2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#06b6d4"/>
+    </marker>
+  </defs>
+  <rect x="2" y="2" width="316" height="88" rx="20" fill="#0b1220" stroke="#1e293b" stroke-width="2"/>
+  <g transform="translate(22,22)">
+    <path d="M30.34 10.41 A 15 15 0 1 1 17.66 10.41" fill="none" stroke="url(#lk-grad)" stroke-width="4" stroke-linecap="round" marker-end="url(#lk-arrow2)"/>
+    <path d="M16.5 24.5 L21.5 29.5 L31 18" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="86" y="50" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="30" font-weight="700" letter-spacing="-1">
+    <tspan fill="#e2e8f0">loop</tspan><tspan fill="url(#lk-kit)">smith</tspan>
+  </text>
+  <text x="87" y="71" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" letter-spacing="0.5" fill="#64748b">make · check · retry</text>
+</svg>

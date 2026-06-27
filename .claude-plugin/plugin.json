@@ -1,0 +1,17 @@
+{
+  "name": "loopsmith",
+  "version": "0.1.0",
+  "description": "Loop engineering for coding agents: a maker/checker verification loop with an independent grader and a budget estimator. Wrap any code task in write -> run -> verify -> retry until it passes or the loop says no.",
+  "author": {
+    "name": "fahreddin hepdonduran",
+    "email": "fahreddinhepdonduran@gmail.com"
+  },
+  "keywords": [
+    "loop-engineering",
+    "verification-loop",
+    "coding-agent",
+    "maker-checker",
+    "claude-code"
+  ],
+  "license": "MIT"
+}

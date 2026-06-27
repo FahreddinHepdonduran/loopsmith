@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>loopsmith · loop engineering for coding agents</title>
+<meta name="description" content="loopsmith is loop engineering for coding agents. Wrap a code task in a loop that writes, runs, verifies, and retries until it passes or stops. Code that is verified, not just generated.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%230b1220'/%3E%3Cpath d='M30.34 10.41 A 15 15 0 1 1 17.66 10.41' fill='none' stroke='%236366f1' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M16.5 24.5 L21.5 29.5 L31 18' fill='none' stroke='%2310b981' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #0b1220;
+    --bg-2: #0f172a;
+    --card: #131c2e;
+    --border: #1e293b;
+    --border-soft: rgba(30, 41, 59, 0.6);
+    --ink: #e2e8f0;
+    --muted: #94a3b8;
+    --faint: #64748b;
+    --indigo: #6366f1;
+    --indigo-soft: #818cf8;
+    --cyan: #06b6d4;
+    --cyan-soft: #22d3ee;
+    --emerald: #10b981;
+    --grad: linear-gradient(120deg, #6366f1, #06b6d4);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { scroll-behavior: smooth; }
+  html { scroll-padding-top: 84px; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap {
+    width: 100%;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(12px);
+    background: rgba(11, 18, 32, 0.72);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-weight: 700; letter-spacing: -0.5px; font-size: 18px; }
+  .nav-brand .dash { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .nav-mark { width: 30px; height: 30px; display: block; }
+  .nav-links { display: flex; align-items: center; gap: 8px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    color: var(--ink);
+    transition: border-color .2s ease, transform .15s ease, background .2s ease;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: #334155; transform: translateY(-1px); }
+  .btn-primary {
+    background: var(--grad);
+    border: none;
+    color: #fff;
+    box-shadow: 0 8px 24px -10px rgba(99, 102, 241, 0.7);
+  }
+  .btn-primary:hover { box-shadow: 0 12px 30px -10px rgba(6, 182, 212, 0.6); }
+  .btn-ghost { background: transparent; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 92px 0 84px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: -180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 760px;
+    height: 540px;
+    background: radial-gradient(closest-side, rgba(99, 102, 241, 0.34), transparent 70%),
+                radial-gradient(closest-side, rgba(6, 182, 212, 0.22), transparent 72%);
+    background-position: 30% 30%, 72% 64%;
+    background-repeat: no-repeat;
+    filter: blur(8px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero .wrap { position: relative; z-index: 1; }
+  .hero-logo { display: block; margin: 0 auto 30px; max-width: 100%; height: auto; filter: drop-shadow(0 18px 40px rgba(2, 6, 23, 0.7)); }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    background: rgba(19, 28, 46, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    margin-bottom: 26px;
+  }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 10px var(--emerald); }
+  h1 {
+    font-size: clamp(38px, 6.4vw, 66px);
+    line-height: 1.04;
+    letter-spacing: -2px;
+    margin: 0 auto 22px;
+    max-width: 860px;
+    font-weight: 800;
+  }
+  h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .subhead {
+    font-size: clamp(17px, 2.1vw, 20px);
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 auto 36px;
+  }
+  .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero-cta .btn { padding: 13px 24px; font-size: 15px; }
+
+  .code-block {
+    margin: 48px auto 0;
+    max-width: 720px;
+    text-align: left;
+    background: #0a101e;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -30px rgba(2, 6, 23, 0.9);
+  }
+  .code-bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-soft);
+    background: rgba(15, 23, 42, 0.5);
+  }
+  .code-bar .tl { width: 11px; height: 11px; border-radius: 50%; }
+  .code-bar .tl.r { background: #ef4444; }
+  .code-bar .tl.y { background: #eab308; }
+  .code-bar .tl.g { background: #22c55e; }
+  .code-bar .tl-label { margin-left: 8px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .code-body { padding: 20px 22px; font-family: var(--mono); font-size: 14px; line-height: 1.85; overflow-x: auto; }
+  .code-body .prompt { color: var(--cyan-soft); }
+  .code-body .cmd { color: var(--ink); }
+  .code-body .str { color: #fbbf24; }
+  .code-body .cmt { color: var(--faint); }
+  .code-body .ok { color: var(--emerald); }
+
+  /* ---------- Section scaffolding ---------- */
+  section { position: relative; padding: 84px 0; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 14px;
+  }
+  h2 {
+    font-size: clamp(28px, 4vw, 40px);
+    letter-spacing: -1.2px;
+    line-height: 1.12;
+    margin: 0 0 16px;
+    font-weight: 800;
+    max-width: 720px;
+  }
+  .lead { font-size: 18px; color: var(--muted); max-width: 680px; margin: 0; }
+  .section-head { text-align: center; margin: 0 auto 52px; display: flex; flex-direction: column; align-items: center; }
+  .section-head h2, .section-head .lead { margin-left: auto; margin-right: auto; }
+
+  .divider { height: 1px; background: var(--border-soft); border: none; margin: 0; }
+
+  /* ---------- Insight ---------- */
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: stretch; }
+  .insight-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 30px;
+  }
+  .insight-card.bad { border-color: rgba(239, 68, 68, 0.28); }
+  .insight-card.good { border-color: rgba(16, 185, 129, 0.32); }
+  .insight-tag { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+  .insight-card.bad .insight-tag { color: #f87171; }
+  .insight-card.good .insight-tag { color: var(--emerald); }
+  .insight-card h3 { font-size: 21px; margin: 0 0 10px; letter-spacing: -0.4px; }
+  .insight-card p { color: var(--muted); margin: 0; font-size: 15.5px; }
+  .wall-note {
+    margin-top: 26px;
+    text-align: center;
+    font-size: 17px;
+    color: var(--ink);
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .wall-note b { color: var(--cyan-soft); font-weight: 700; }
+
+  /* ---------- Skills ---------- */
+  .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .skill {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    transition: border-color .2s ease, transform .2s ease;
+    overflow: hidden;
+  }
+  .skill::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--grad);
+    opacity: 0;
+    transition: opacity .2s ease;
+  }
+  .skill:hover { transform: translateY(-3px); border-color: #334155; }
+  .skill:hover::after { opacity: 1; }
+  .skill-icon {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    margin-bottom: 18px;
+  }
+  .skill-name { font-family: var(--mono); font-size: 18px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 10px; }
+  .skill-name .slash { color: var(--cyan-soft); }
+  .skill p { color: var(--muted); margin: 0; font-size: 15px; }
+  .skill .role { display: inline-block; margin-top: 16px; font-family: var(--mono); font-size: 12px; color: var(--faint); padding: 3px 9px; border: 1px solid var(--border); border-radius: 7px; }
+
+  /* ---------- How it works ---------- */
+  .loop-section { background: var(--bg-2); }
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 8px;
+    align-items: stretch;
+  }
+  .flow-step {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 20px;
+  }
+  .flow-step .n {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cyan-soft);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .flow-step h4 { margin: 0 0 7px; font-size: 16px; letter-spacing: -0.3px; }
+  .flow-step p { margin: 0; font-size: 13.5px; color: var(--muted); }
+  .flow-step.maker { border-color: rgba(99, 102, 241, 0.35); }
+  .flow-step.checker { border-color: rgba(6, 182, 212, 0.35); }
+  .flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--faint); }
+  .loop-diagram { max-width: 660px; margin: 4px auto 40px; }
+  .loop-diagram svg { width: 100%; height: auto; display: block; }
+  @keyframes lk-dash { to { stroke-dashoffset: -28; } }
+  .lk-fail { stroke-dasharray: 7 6; animation: lk-dash 0.9s linear infinite; }
+
+  .loop-back {
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+  .verdict { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border); }
+  .verdict.pass { border-color: rgba(16, 185, 129, 0.4); color: var(--emerald); background: rgba(16, 185, 129, 0.06); }
+  .verdict.fail { border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; background: rgba(245, 158, 11, 0.06); }
+  .verdict .arrow { color: var(--faint); margin-left: 4px; }
+
+  /* ---------- Stop conditions ---------- */
+  .stop-intro {
+    text-align: center;
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 auto 44px;
+  }
+  .stop-intro b { color: var(--ink); }
+  .stop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .stop-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .stop-card .mark {
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+  .stop-card h4 { margin: 0 0 5px; font-size: 16px; letter-spacing: -0.3px; }
+  .stop-card p { margin: 0; font-size: 14px; color: var(--muted); }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--border-soft); padding: 52px 0 60px; }
+  .foot-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; }
+  .foot-brand { display: flex; align-items: center; gap: 12px; }
+  .foot-mark { width: 34px; height: 34px; }
+  .foot-name { font-family: var(--mono); font-weight: 700; letter-spacing: -0.4px; }
+  .foot-name .dash { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .foot-meta { font-size: 13.5px; color: var(--faint); margin-top: 3px; font-family: var(--mono); }
+  .foot-tags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .chip { font-family: var(--mono); font-size: 12.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; }
+  .chip.soon { color: var(--cyan-soft); border-color: rgba(34, 211, 238, 0.3); }
+  .foot-built { width: 100%; text-align: center; margin-top: 30px; color: var(--faint); font-size: 13px; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 860px) {
+    .insight-grid { grid-template-columns: 1fr; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .stop-grid { grid-template-columns: 1fr 1fr; }
+    .flow { grid-template-columns: 1fr 1fr; }
+    .flow-arrow { display: none; }
+  }
+  @media (max-width: 560px) {
+    section { padding: 64px 0; }
+    .hero { padding: 64px 0 56px; }
+    .stop-grid { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr; }
+    .nav-links .label-hide { display: none; }
+    .hero-cta .btn { flex: 1 1 auto; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="#top" aria-label="loopsmith home">
+      <svg class="nav-mark" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="48" height="48" rx="10" fill="#0b1220" stroke="#1e293b" stroke-width="1.5"/>
+        <path d="M30.34 10.41 A 15 15 0 1 1 17.66 10.41" fill="none" stroke="#6366f1" stroke-width="4" stroke-linecap="round"/>
+        <path d="M16.5 24.5 L21.5 29.5 L31 18" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>loop<span class="dash">smith</span></span>
+    </a>
+    <div class="nav-links">
+      <a class="btn btn-ghost label-hide" href="#how">How it works</a>
+      <a class="btn btn-primary" href="https://github.com/FahreddinHepdonduran/loopsmith">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <svg class="hero-logo" width="320" height="92" viewBox="0 0 320 92" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="loopsmith">
+      <defs>
+        <linearGradient id="lk-grad" x1="20" y1="22" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#6366f1"/>
+          <stop offset="1" stop-color="#06b6d4"/>
+        </linearGradient>
+        <linearGradient id="lk-kit" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#818cf8"/>
+          <stop offset="1" stop-color="#22d3ee"/>
+        </linearGradient>
+        <marker id="lk-arrow2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#06b6d4"/>
+        </marker>
+      </defs>
+      <rect x="2" y="2" width="316" height="88" rx="20" fill="#0b1220" stroke="#1e293b" stroke-width="2"/>
+      <g transform="translate(22,22)">
+        <path d="M30.34 10.41 A 15 15 0 1 1 17.66 10.41" fill="none" stroke="url(#lk-grad)" stroke-width="4" stroke-linecap="round" marker-end="url(#lk-arrow2)"/>
+        <path d="M16.5 24.5 L21.5 29.5 L31 18" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="86" y="50" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="30" font-weight="700" letter-spacing="-1">
+        <tspan fill="#e2e8f0">loop</tspan><tspan fill="url(#lk-kit)">smith</tspan>
+      </text>
+      <text x="87" y="71" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="500" letter-spacing="0.5" fill="#64748b">make · check · retry</text>
+    </svg>
+
+    <div class="pill"><span class="dot"></span> Loop engineering for coding agents</div>
+
+    <h1>Stop prompting. <span class="grad">Start looping.</span></h1>
+
+    <p class="subhead">
+      Instead of hand-prompting an AI coding agent turn by turn, wrap a code task in a loop that writes, runs, verifies, and retries until it actually passes or the loop decides to stop. Code that is verified, not just generated.
+    </p>
+
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="https://github.com/FahreddinHepdonduran/loopsmith">View on GitHub</a>
+      <a class="btn btn-ghost" href="#how">How it works</a>
+    </div>
+
+    <div class="code-block">
+      <div class="code-bar">
+        <span class="tl r"></span><span class="tl y"></span><span class="tl g"></span>
+        <span class="tl-label">claude-code</span>
+      </div>
+      <div class="code-body">
+<span class="prompt">&gt;</span> <span class="cmd">/verify-loop</span> <span class="str">"add pagination to the users endpoint and make the tests pass"</span>
+<span class="cmt"># maker writes the change</span>
+<span class="cmt"># checker runs tests, lint, build on a clean context</span>
+<span class="cmt"># failures feed back, it retries</span>
+<span class="ok">&#10003; PASS</span> <span class="cmt">verified in 2 iterations</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<hr class="divider">
+
+<!-- ============ INSIGHT ============ -->
+<section id="insight">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The core idea</span>
+      <h2>An agent that thinks it is done is not a change that has been verified.</h2>
+      <p class="lead">loopsmith keeps a hard wall between the agent that makes the change and the agent that grades it. That independence removes the self-grading bias where an agent rubber-stamps its own work.</p>
+    </div>
+
+    <div class="insight-grid">
+      <div class="insight-card bad">
+        <div class="insight-tag">Without the wall</div>
+        <h3>Self-grading bias</h3>
+        <p>The same agent that wrote the change also decides whether it is correct. It has every reason to declare success. "Looks good to me" is not verification, it is a conflict of interest.</p>
+      </div>
+      <div class="insight-card good">
+        <div class="insight-tag">With loopsmith</div>
+        <h3>Independent verification</h3>
+        <p>A separate checker, with a clean context, runs the real tests, lint, and build, then reviews the diff against the original intent. It grades the work, not its own intentions.</p>
+      </div>
+    </div>
+
+    <p class="wall-note">The maker proposes. The checker disposes. <b>Independence is the whole point.</b></p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SKILLS ============ -->
+<section id="skills">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Three skills</span>
+      <h2>A Claude Code plugin, built from skills you can compose.</h2>
+      <p class="lead">Run the full loop, or pull out just the checker, or price a loop before you spend a token on it.</p>
+    </div>
+
+    <div class="skills-grid">
+      <div class="skill">
+        <div class="skill-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 4 21 10 15 10"/></svg>
+        </div>
+        <div class="skill-name"><span class="slash">/</span>verify-loop</div>
+        <p>The full loop. A maker sub-agent writes the change. A separate checker sub-agent with a clean context runs tests, lint, and build, and reviews the diff against intent. Failures feed back and it retries until PASS or a stop condition fires.</p>
+        <span class="role">maker + checker</span>
+      </div>
+
+      <div class="skill">
+        <div class="skill-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="skill-name"><span class="slash">/</span>grade</div>
+        <p>The checker on its own. A one-shot, read-only verdict on a pending diff against its stated intent. Use it for a report-only review, or as the checker step inside verify-loop.</p>
+        <span class="role">checker, read-only</span>
+      </div>
+
+      <div class="skill">
+        <div class="skill-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="skill-name"><span class="slash">/</span>loop-cost</div>
+        <p>Estimate the token and iteration budget of a loop before you run it, so the loop has a ceiling to stop against. Know the bill before you sign it.</p>
+        <span class="role">budget, pre-flight</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="how" class="loop-section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2>One loop: capture, make, check, repeat.</h2>
+      <p class="lead">verify-loop captures intent and detects the project's commands, then runs the maker and the checker on separate contexts until the verdict passes.</p>
+    </div>
+
+    <div class="loop-diagram">
+      <svg viewBox="0 0 720 472" role="img" aria-label="The verify-loop cycle: the maker writes a change, a separate checker runs commands and reviews the diff, and the verdict either passes and exits or feeds the failure back to the maker.">
+        <defs>
+          <marker id="ar-s" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#64748b"/></marker>
+          <marker id="ar-e" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#10b981"/></marker>
+          <marker id="ar-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#fbbf24"/></marker>
+        </defs>
+
+        <!-- forward flow -->
+        <path d="M44 100 L130 100" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#ar-s)"/>
+        <text x="40" y="86" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#64748b">your task</text>
+
+        <path d="M323 100 L390 100" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#ar-s)"/>
+        <text x="357" y="88" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#64748b">diff</text>
+
+        <path d="M462 138 C 476 192, 476 232, 448 259" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#ar-s)"/>
+        <text x="488" y="206" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#64748b">run + review</text>
+
+        <!-- PASS exit -->
+        <path d="M360 338 L360 404" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#ar-e)"/>
+
+        <!-- FAIL feedback, this arc is the loop -->
+        <path class="lk-fail" d="M268 300 C 116 300, 96 150, 222 140" fill="none" stroke="#fbbf24" stroke-width="2.5" marker-end="url(#ar-a)"/>
+        <rect x="22" y="198" width="112" height="30" rx="9" fill="#fbbf24" fill-opacity="0.08" stroke="#fbbf24" stroke-opacity="0.45"/>
+        <text x="78" y="218" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="12" font-weight="700" fill="#fbbf24">FAIL: retry</text>
+
+        <!-- maker -->
+        <rect x="140" y="64" width="182" height="72" rx="16" fill="#131c2e" stroke="#6366f1" stroke-opacity="0.55" stroke-width="1.5"/>
+        <text x="162" y="95" font-family="ui-monospace,Menlo,monospace" font-size="11" font-weight="700" fill="#818cf8">02 · maker</text>
+        <text x="162" y="118" font-family="system-ui,sans-serif" font-size="16" font-weight="600" fill="#e2e8f0">Write the change</text>
+
+        <!-- checker -->
+        <rect x="400" y="64" width="182" height="72" rx="16" fill="#131c2e" stroke="#06b6d4" stroke-opacity="0.55" stroke-width="1.5"/>
+        <text x="422" y="95" font-family="ui-monospace,Menlo,monospace" font-size="11" font-weight="700" fill="#22d3ee">03 · checker</text>
+        <text x="422" y="118" font-family="system-ui,sans-serif" font-size="16" font-weight="600" fill="#e2e8f0">Run and review</text>
+
+        <!-- verdict -->
+        <rect x="269" y="266" width="182" height="72" rx="16" fill="#131c2e" stroke="#fbbf24" stroke-opacity="0.5" stroke-width="1.5"/>
+        <text x="291" y="297" font-family="ui-monospace,Menlo,monospace" font-size="11" font-weight="700" fill="#fbbf24">04 · verdict</text>
+        <text x="291" y="320" font-family="system-ui,sans-serif" font-size="16" font-weight="600" fill="#e2e8f0">Pass or fail?</text>
+
+        <!-- pass pill -->
+        <rect x="266" y="412" width="188" height="38" rx="11" fill="#10b981" fill-opacity="0.08" stroke="#10b981" stroke-opacity="0.55"/>
+        <text x="360" y="436" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="13" font-weight="600" fill="#10b981">PASS: verified, exit</text>
+      </svg>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step">
+        <span class="n">01 · setup</span>
+        <h4>Capture intent</h4>
+        <p>Read the task and auto-detect the project's test, lint, and build commands.</p>
+      </div>
+      <div class="flow-step maker">
+        <span class="n">02 · maker</span>
+        <h4>Write the change</h4>
+        <p>The maker sub-agent implements the task and produces a diff. Nothing is trusted yet.</p>
+      </div>
+      <div class="flow-step checker">
+        <span class="n">03 · checker</span>
+        <h4>Run and review</h4>
+        <p>A fresh checker runs the commands and reviews the diff against the original intent.</p>
+      </div>
+      <div class="flow-step">
+        <span class="n">04 · verdict</span>
+        <h4>Pass or feed back</h4>
+        <p>PASS exits the loop. FAIL feeds the failure back to the maker for another pass.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ STOP CONDITIONS ============ -->
+<section id="stop">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The half that says no</span>
+      <h2>A loop without a stop condition is a token furnace.</h2>
+    </div>
+    <p class="stop-intro">verify-loop is not just the half that retries. It is also the half that knows when to <b>quit</b>. It stops on any of these:</p>
+
+    <div class="stop-grid">
+      <div class="stop-card">
+        <div class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><h4>PASS</h4><p>The checker's verdict passes. The change is verified and the loop exits cleanly.</p></div>
+      </div>
+      <div class="stop-card">
+        <div class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div>
+        <div><h4>Max iterations</h4><p>A hard ceiling on retries, default 3, so it never spins forever.</p></div>
+      </div>
+      <div class="stop-card">
+        <div class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h6m6 0h6"/><path d="M9 8l-3 4 3 4"/></svg></div>
+        <div><h4>No progress</h4><p>The same failure twice in a row means retrying again will not help. Stop.</p></div>
+      </div>
+      <div class="stop-card">
+        <div class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <div><h4>Budget exceeded</h4><p>The loop runs against the ceiling from loop-cost and stops when the budget is spent.</p></div>
+      </div>
+      <div class="stop-card">
+        <div class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div><h4>Risk and ambiguity</h4><p>It escalates to a human instead of forcing a destructive fix when the path is unclear.</p></div>
+      </div>
+      <div class="stop-card">
+        <div class="mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg></div>
+        <div><h4>Clean stop, every time</h4><p>Whatever ends the loop, it ends on purpose. No runaway retries, no surprise bills.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-brand">
+      <svg class="foot-mark" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="48" height="48" rx="11" fill="#0b1220" stroke="#1e293b" stroke-width="1.5"/>
+        <path d="M30.34 10.41 A 15 15 0 1 1 17.66 10.41" fill="none" stroke="#6366f1" stroke-width="4" stroke-linecap="round"/>
+        <path d="M16.5 24.5 L21.5 29.5 L31 18" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div class="foot-name">loop<span class="dash">smith</span></div>
+        <div class="foot-meta">make · check · retry</div>
+      </div>
+    </div>
+    <div class="foot-tags">
+      <span class="chip">v0.1.0</span>
+      <span class="chip">MIT License</span>
+      <span class="chip soon">npx installer coming soon</span>
+      <a class="btn btn-ghost" href="https://github.com/FahreddinHepdonduran/loopsmith">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+    <div class="foot-built">Built for Claude Code.</div>
+  </div>
+</footer>
+
+</body>
+</html>
