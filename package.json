@@ -8,7 +8,7 @@
   "files": [
     "bin",
     "skills",
-    "assets"
+    "assets/*.svg"
   ],
   "scripts": {
     "test": "node bin/cli.js --help"
